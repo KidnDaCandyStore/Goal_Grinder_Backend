@@ -93,14 +93,11 @@ from datetime import datetime
 @app.route('/events_by_month/<int:year>/<int:month>', methods=['GET'])
 def get_events_by_month(year, month):
     try:
-        # Use datetime.date or datetime.datetime to create date objects
         first_day = datetime(year, month, 1).date()
         if month == 12:
             last_day = datetime(year + 1, 1, 1).date()
         else:
             last_day = datetime(year, month + 1, 1).date()
-
-        print(f"Querying from {first_day} to {last_day}")  # Debug print
 
         events = Event.query.filter(Event.date >= first_day.strftime('%Y-%m-%d'), 
                                     Event.date < last_day.strftime('%Y-%m-%d')).all()
@@ -110,7 +107,6 @@ def get_events_by_month(year, month):
         event_dates.sort(key=lambda x: x['date'])
         return jsonify({"success": True, "event_dates": event_dates}), 200
     except Exception as e:
-        print(f"Error: {str(e)}")  # Debug print
         return jsonify({"success": False, "message": str(e)}), 500
 
 
