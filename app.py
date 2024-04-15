@@ -26,10 +26,6 @@ class Settings(db.Model):
     auto_adjust_schedule = db.Column(db.Boolean, default=True)
     track_my_location = db.Column(db.Boolean, default=False)
 
-def create_tables():
-    """Create database tables from the models."""
-    with app.app_context():
-        db.create_all()
 
 # Endpoint to update user settings
 @app.route('/update_settings', methods=['POST'])
@@ -123,6 +119,10 @@ def get_events_by_month(year, month):
             "message": str(e)
         }), 500
 
+# CREATE DATABASE TABLES: FUNCTION: 
+@app.before_first_request
+def create_tables():
+    db.create_all()
+
 if __name__ == '__main__':
-    create_tables()  # Ensure tables are created before running the application
     app.run(debug=True)
