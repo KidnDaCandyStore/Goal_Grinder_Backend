@@ -103,13 +103,16 @@ def get_events_by_month(year, month):
         # Query to find events within the specified month
         events = Event.query.filter(Event.date >= first_day.strftime('%Y-%m-%d'), Event.date < last_day.strftime('%Y-%m-%d')).all()
 
-        # Extract just the date part from the events and eliminate duplicates
-        event_dates = list(set([event.date for event in events]))
+        # Prepare data with date and color based on completion status
+        event_dates = [{
+            "date": event.date,
+            "color": "green" if event.completed_on_time else "red"
+        } for event in events]
 
         # Sorting the dates might be helpful for easier readability/consumption
-        event_dates.sort()
+        event_dates.sort(key=lambda x: x['date'])
 
-        # Return the list of dates with events
+        # Return the list of dates with events and their completion color
         return jsonify({
             "success": True,
             "event_dates": event_dates
@@ -123,3 +126,7 @@ def get_events_by_month(year, month):
 if __name__ == '__main__':
     create_tables()  # Ensure tables are created before running the application
     app.run(debug=True)
+
+def create_app():
+    """Create and return the Flask app."""
+    return app
