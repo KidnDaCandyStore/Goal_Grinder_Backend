@@ -88,24 +88,31 @@ def add_event():
     db.session.commit()
     return jsonify({"success": True, "message": "Event added successfully"}), 201
 
+from datetime import datetime
+
 @app.route('/events_by_month/<int:year>/<int:month>', methods=['GET'])
 def get_events_by_month(year, month):
     try:
-        first_day = datetime(year, month, 1)
-        last_day = datetime(year + 1, 1, 1) if month == 12 else datetime(year, month + 1, 1)
-        
+        # Use datetime.date or datetime.datetime to create date objects
+        first_day = datetime(year, month, 1).date()
+        if month == 12:
+            last_day = datetime(year + 1, 1, 1).date()
+        else:
+            last_day = datetime(year, month + 1, 1).date()
+
         print(f"Querying from {first_day} to {last_day}")  # Debug print
 
         events = Event.query.filter(Event.date >= first_day.strftime('%Y-%m-%d'), 
                                     Event.date < last_day.strftime('%Y-%m-%d')).all()
         event_dates = [{"date": event.date, "color": "green" if event.completed_on_time else "red"}
                        for event in events]
-        
+
         event_dates.sort(key=lambda x: x['date'])
         return jsonify({"success": True, "event_dates": event_dates}), 200
     except Exception as e:
         print(f"Error: {str(e)}")  # Debug print
         return jsonify({"success": False, "message": str(e)}), 500
+
 
 # CREATE DATABASE TABLES: FUNCTION: 
 @app.before_first_request
