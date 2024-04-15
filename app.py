@@ -126,7 +126,3 @@ def get_events_by_month(year, month):
 if __name__ == '__main__':
     create_tables()  # Ensure tables are created before running the application
     app.run(debug=True)
-
-def create_app():
-    """Create and return the Flask app."""
-    return app
