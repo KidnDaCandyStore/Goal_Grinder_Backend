@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
-import datetime
+from datetime import datetime
 
 app = Flask(__name__)
 cors = CORS(app, supports_credentials=True, resources={r"/api/*": {"origins": "*"}})
@@ -75,6 +75,7 @@ def get_event(date):
 @app.route('/add_event', methods=['POST'])
 def add_event():
     data = request.json
+    print("Adding new event:", data)  # Confirm addition
     new_event = Event(
         title=data['title'],
         location=data['location'],
@@ -86,9 +87,8 @@ def add_event():
     )
     db.session.add(new_event)
     db.session.commit()
+    print("New event added.")  # Confirm addition
     return jsonify({"success": True, "message": "Event added successfully"}), 201
-
-from datetime import datetime
 
 @app.route('/events_by_month/<int:year>/<int:month>', methods=['GET'])
 def get_events_by_month(year, month):
