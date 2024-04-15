@@ -91,35 +91,21 @@ def add_event():
 @app.route('/events_by_month/<int:year>/<int:month>', methods=['GET'])
 def get_events_by_month(year, month):
     try:
-        # Find the first and last day of the given month
         first_day = datetime(year, month, 1)
-        if month == 12:
-            last_day = datetime(year + 1, 1, 1)
-        else:
-            last_day = datetime(year, month + 1, 1)
+        last_day = datetime(year + 1, 1, 1) if month == 12 else datetime(year, month + 1, 1)
+        
+        print(f"Querying from {first_day} to {last_day}")  # Debug print
 
-        # Query to find events within the specified month
-        events = Event.query.filter(Event.date >= first_day.strftime('%Y-%m-%d'), Event.date < last_day.strftime('%Y-%m-%d')).all()
-
-        # Prepare data with date and color based on completion status
-        event_dates = [{
-            "date": event.date,
-            "color": "green" if event.completed_on_time else "red"
-        } for event in events]
-
-        # Sorting the dates might be helpful for easier readability/consumption
+        events = Event.query.filter(Event.date >= first_day.strftime('%Y-%m-%d'), 
+                                    Event.date < last_day.strftime('%Y-%m-%d')).all()
+        event_dates = [{"date": event.date, "color": "green" if event.completed_on_time else "red"}
+                       for event in events]
+        
         event_dates.sort(key=lambda x: x['date'])
-
-        # Return the list of dates with events and their completion color
-        return jsonify({
-            "success": True,
-            "event_dates": event_dates
-        }), 200
+        return jsonify({"success": True, "event_dates": event_dates}), 200
     except Exception as e:
-        return jsonify({
-            "success": False,
-            "message": str(e)
-        }), 500
+        print(f"Error: {str(e)}")  # Debug print
+        return jsonify({"success": False, "message": str(e)}), 500
 
 # CREATE DATABASE TABLES: FUNCTION: 
 @app.before_first_request
