@@ -106,7 +106,22 @@ def get_events_by_month(year, month):
 # CREATE DATABASE TABLES: FUNCTION: 
 @app.before_first_request
 def create_tables():
-    db.create_all()
+    db.create_all()  # Create database tables
 
+    # Check if the events table is empty and only then add example events
+    if not Event.query.first():
+        events = [
+            Event(title="Project Kickoff", location="Conference Room A", date="2024-04-05", start_time="09:00 AM", end_time="11:00 AM", completed=False, completed_on_time=False),
+            Event(title="Team Meeting", location="Conference Room B", date="2024-04-12", start_time="10:00 AM", end_time="12:00 PM", completed=False, completed_on_time=False),
+            Event(title="Client Review", location="Conference Room C", date="2024-04-19", start_time="02:00 PM", end_time="03:00 PM", completed=False, completed_on_time=False),
+            Event(title="Product Launch", location="Main Hall", date="2024-04-22", start_time="01:00 PM", end_time="05:00 PM", completed=False, completed_on_time=False),
+            Event(title="Quarterly Planning", location="Conference Room D", date="2024-04-29", start_time="09:00 AM", end_time="11:00 AM", completed=False, completed_on_time=False)
+        ]
+
+        # Add all events to the database
+        db.session.bulk_save_objects(events)
+        db.session.commit()  # Commit the changes to the database
+        print("Added example events to the database.")  # Confirm addition in the console
+        
 if __name__ == '__main__':
     app.run(debug=True)
