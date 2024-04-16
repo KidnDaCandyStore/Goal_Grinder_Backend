@@ -97,7 +97,7 @@ def get_events_by_month(year, month):
     print(f"Querying events from {first_day} to {last_day}")  # Debug print
     events = Event.query.filter(Event.date >= first_day.strftime('%Y-%m-%d'), Event.date < last_day.strftime('%Y-%m-%d')).all()
     print(f"Found {len(events)} events")  # Debug print
-    event_dates = [{"date": event.date, "color": "green" if event.completed_on_time else "red"} for event in events]
+    event_dates = [{"date": event.date, "color": "rgb(38, 233, 57)" if event.completed_on_time else "rgb(252, 111, 111)"} for event in events]
 
     event_dates.sort(key=lambda x: x['date'])
     return jsonify({"success": True, "event_dates": event_dates}), 200
