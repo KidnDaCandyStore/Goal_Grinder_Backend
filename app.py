@@ -4,7 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 
 app = Flask(__name__)
-cors = CORS(app, supports_credentials=True, resources={r"/api/*": {"origins": "*"}})
+CORS(app)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///goalgrinder.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
@@ -92,22 +92,15 @@ def add_event():
 
 @app.route('/events_by_month/<int:year>/<int:month>', methods=['GET'])
 def get_events_by_month(year, month):
-    try:
-        first_day = datetime(year, month, 1).date()
-        if month == 12:
-            last_day = datetime(year + 1, 1, 1).date()
-        else:
-            last_day = datetime(year, month + 1, 1).date()
+    first_day = datetime(year, month, 1).date()
+    last_day = datetime(year, month + 1, 1).date() if month != 12 else datetime(year + 1, 1, 1).date()
+    print(f"Querying events from {first_day} to {last_day}")  # Debug print
+    events = Event.query.filter(Event.date >= first_day.strftime('%Y-%m-%d'), Event.date < last_day.strftime('%Y-%m-%d')).all()
+    print(f"Found {len(events)} events")  # Debug print
+    event_dates = [{"date": event.date, "color": "green" if event.completed_on_time else "red"} for event in events]
 
-        events = Event.query.filter(Event.date >= first_day.strftime('%Y-%m-%d'), 
-                                    Event.date < last_day.strftime('%Y-%m-%d')).all()
-        event_dates = [{"date": event.date, "color": "green" if event.completed_on_time else "red"}
-                       for event in events]
-
-        event_dates.sort(key=lambda x: x['date'])
-        return jsonify({"success": True, "event_dates": event_dates}), 200
-    except Exception as e:
-        return jsonify({"success": False, "message": str(e)}), 500
+    event_dates.sort(key=lambda x: x['date'])
+    return jsonify({"success": True, "event_dates": event_dates}), 200
 
 
 # CREATE DATABASE TABLES: FUNCTION: 
